@@ -1,7 +1,7 @@
 
 package cn.momosv.blog.base.redis.config;
 
-import cn.momosv.blog.base.redis.RedisUtil;
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -15,9 +15,7 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.lang.reflect.Method;
@@ -66,31 +64,58 @@ public class RedisConfig {
     }
 
 
-    @Bean("redisTemplate")
-    @ConditionalOnMissingBean(name = "redisTemplate")
+    @Bean
     public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<Object, Object> template = new RedisTemplate<>();
 
         //使用fastjson序列化
         FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
-        // value值的序列化采用fastJsonRedisSerializer
+
+        //kryo
+        KryoRedisSerializer kryoRedisSerializer = new KryoRedisSerializer(Object.class);
+        // value值的序列化采用kryoRedisSerializer
         template.setValueSerializer(fastJsonRedisSerializer);
         template.setHashValueSerializer(fastJsonRedisSerializer);
         // key的序列化采用StringRedisSerializer
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-
+       ParserConfig.getGlobalInstance().addAccept("cn.momosv.blog");
+       // ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
         template.setConnectionFactory(redisConnectionFactory);
     //    RedisUtil.redisTemplate = template;
         return template;
     }
 
     @Bean
-    @ConditionalOnMissingBean(StringRedisTemplate.class)
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
+    }
+
+    @Bean
+    public HashOperations<String, String, Object> hashOperations( @Qualifier("redisTemplate")RedisTemplate redisTemplate) {
+        return redisTemplate.opsForHash();
+    }
+
+    @Bean
+    public ValueOperations<String, String> valueOperations( @Qualifier("redisTemplate")RedisTemplate redisTemplate) {
+        return redisTemplate.opsForValue();
+    }
+
+    @Bean
+    public ListOperations<String, Object> listOperations( @Qualifier("redisTemplate")RedisTemplate redisTemplate) {
+        return redisTemplate.opsForList();
+    }
+
+    @Bean
+    public SetOperations<String, Object> setOperations( @Qualifier("redisTemplate")RedisTemplate redisTemplate) {
+        return redisTemplate.opsForSet();
+    }
+
+    @Bean
+    public ZSetOperations<String, Object> zSetOperations( @Qualifier("redisTemplate")RedisTemplate redisTemplate) {
+        return redisTemplate.opsForZSet();
     }
 
 }
