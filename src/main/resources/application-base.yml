@@ -23,3 +23,7 @@ spring:
         #连接超时时间
       timeout: 10s
 
+mybatis-common:
+  mapper-locations: /base-mapper/*.xml
+  type-aliases-package: cn.momosv.blog.base.mybatis.dao
+  config-location: classpath:/mybatis-config.xml
