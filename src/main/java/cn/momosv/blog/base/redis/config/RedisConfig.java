@@ -72,14 +72,14 @@ public class RedisConfig {
         FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
 
         //kryo
-        KryoRedisSerializer kryoRedisSerializer = new KryoRedisSerializer(Object.class);
+        //KryoRedisSerializer kryoRedisSerializer = new KryoRedisSerializer(Object.class);
         // value值的序列化采用kryoRedisSerializer
         template.setValueSerializer(fastJsonRedisSerializer);
         template.setHashValueSerializer(fastJsonRedisSerializer);
         // key的序列化采用StringRedisSerializer
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-       ParserConfig.getGlobalInstance().addAccept("cn.momosv.blog");
+        ParserConfig.getGlobalInstance().addAccept("cn.momosv.blog");
        // ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
         template.setConnectionFactory(redisConnectionFactory);
     //    RedisUtil.redisTemplate = template;
